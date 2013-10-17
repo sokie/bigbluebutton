@@ -28,6 +28,7 @@ package org.bigbluebutton.modules.broadcast.models
 	import mx.core.UIComponent;
 	
 	import org.bigbluebutton.common.LogUtil;
+        import org.bigbluebutton.modules.broadcast.models.BroadcastOptions;
 	import org.bigbluebutton.modules.broadcast.views.BroadcastWindow;
 
 	public class Stream {
@@ -41,6 +42,7 @@ package org.bigbluebutton.modules.broadcast.models
 		private var videoWidth:int;
 		private var videoHeight:int;
 		private var videoHolder:UIComponent;
+                public var options:BroadcastOptions;
     
 		[Bindable]
 		public var width:int = 320;
@@ -52,6 +54,7 @@ package org.bigbluebutton.modules.broadcast.models
 			this.uri = uri;
 			this.streamId = streamId;
 			this.streamName = streamName;
+                        options = new BroadcastOptions();
 		}
 
 		public function play(w:BroadcastWindow):void {
@@ -205,33 +208,50 @@ package org.bigbluebutton.modules.broadcast.models
       return (videoHeight < window.height) && (videoWidth < window.width);
     }
     
-    private const VIDEO_WIDTH_PADDING:int = 7;
-    private const VIDEO_HEIGHT_PADDING:int = 65;
+    private const VIDEO_WIDTH_PADDING:int = 10;
+    private const VIDEO_HEIGHT_PADDING:int = 60;
+    private const VIDEO_HEIGHT_PADDING_SIMPLE:int = 30;
     
     private function fitToWidthAndAdjustHeightToMaintainAspectRatio():void {
       videoHolder.width = video.width = window.width - VIDEO_WIDTH_PADDING;
       // Maintain aspect-ratio
       videoHolder.height = video.height = (videoHeight * video.width) / videoWidth;
       videoHolder.x = video.x = 0;
-      videoHolder.y = video.y = 0;
-      
+      //videoHolder.y = video.y = 0;
+      if (options.showStreams) {
+        videoHolder.y = video.y = (window.height - VIDEO_HEIGHT_PADDING - video.height ) / 2;
+      }else{
+        videoHolder.y = video.y = (window.height - VIDEO_HEIGHT_PADDING_SIMPLE - video.height ) / 2;
+       }
+
       videoHolder.addChild(video);
       window.videoHolderBox.addChild(videoHolder);
     }
     
     private function fitToHeightAndAdjustWidthToMaintainAspectRatio():void {
-      videoHolder.height = video.height = window.height - VIDEO_HEIGHT_PADDING;
+        if (options.showStreams) {
+          videoHolder.height = video.height = window.height - VIDEO_HEIGHT_PADDING;
+        }else{
+          videoHolder.height = video.height = window.height - VIDEO_HEIGHT_PADDING_SIMPLE;
+        }
+    
       // Maintain aspect-ratio
       videoHolder.width = video.width = (videoWidth * video.height) / videoHeight;
       
-      if (videoHolder.width > window.width - VIDEO_WIDTH_PADDING) {
+    if (videoHolder.width > window.width - VIDEO_WIDTH_PADDING) {
         videoHolder.width = video.width = window.width - VIDEO_WIDTH_PADDING;
         videoHolder.height = video.height = (videoHeight * video.width) / videoWidth;
+        if (options.showStreams) {
+           videoHolder.y = video.y = (window.height - VIDEO_HEIGHT_PADDING - video.height ) / 2;
+        }else{
+           videoHolder.y = video.y = (window.height - VIDEO_HEIGHT_PADDING_SIMPLE - video.height ) / 2;
+        }
+      }else{
+          videoHolder.y = video.y = 0;
       }
-      
+        
       videoHolder.x = video.x = (window.width - VIDEO_WIDTH_PADDING - video.width) / 2;
-      videoHolder.y = video.y = (window.height - VIDEO_WIDTH_PADDING - video.height) / 2;	
-      
+
       videoHolder.addChild(video);
       window.videoHolderBox.addChild(videoHolder);
     }
